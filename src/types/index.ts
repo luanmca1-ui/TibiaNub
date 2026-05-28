@@ -40,6 +40,8 @@ export type ElementalType = "Fire" | "Ice" | "Earth" | "Energy" | "Death" | "Hol
 
 export type MaterialsStatus = "validated" | "needs_validation";
 
+export type DataStatus = "validated" | "needs_review";
+
 export type ImbuementMaterial = {
   itemName: string;
   quantity: number;
@@ -86,6 +88,10 @@ export type Equipment = {
   priority?: number;
   imageUrl?: string;
   wikiUrl?: string;
+  sourceUrls?: string[];
+  dataStatus?: DataStatus;
+  notes?: string;
+  budgetFallback?: boolean;
   attributes?: string[];
   description?: string;
   score?: number;

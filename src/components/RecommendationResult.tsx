@@ -1,5 +1,5 @@
 import { vocations } from "@/data/vocations";
-import type { Cave, Filters, Recommendation, VideoLink } from "@/types";
+import type { Cave, EquipmentSlot, Filters, Recommendation, VideoLink } from "@/types";
 import { getVideosForCave } from "@/utils/recommendationEngine";
 import { Badge } from "./Badge";
 import { CaveCard } from "./CaveCard";
@@ -28,6 +28,29 @@ function Section({
       </div>
       {children}
     </section>
+  );
+}
+
+const requiredSlots: EquipmentSlot[] = [
+  "Helmet",
+  "Armor",
+  "Legs",
+  "Boots",
+  "Weapon",
+  "Shield/Spellbook",
+  "Amulet",
+  "Ring",
+];
+
+function MissingEquipmentSlot({ slot }: { slot: EquipmentSlot }) {
+  return (
+    <article className="grid gap-2 rounded-lg border border-dashed border-white/15 bg-obsidian/45 p-3.5">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-ember">{slot}</p>
+      <h3 className="text-base font-semibold text-white">Sem sugestão validada para este slot.</h3>
+      <p className="text-sm leading-5 text-parchment/68">
+        Não cadastramos um item real e confiável para esta combinação ainda.
+      </p>
+    </article>
   );
 }
 
@@ -66,9 +89,15 @@ export function RecommendationResult({
       >
         {recommendation.equipments.length > 0 ? (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {recommendation.equipments.map((equipment) => (
-              <EquipmentCard equipment={equipment} key={`${equipment.slot}-${equipment.name}`} />
-            ))}
+            {requiredSlots.map((slot) => {
+              const equipment = recommendation.equipments.find((item) => item.slot === slot);
+
+              return equipment ? (
+                <EquipmentCard equipment={equipment} key={`${equipment.slot}-${equipment.name}`} />
+              ) : (
+                <MissingEquipmentSlot key={slot} slot={slot} />
+              );
+            })}
           </div>
         ) : (
           <EmptyState

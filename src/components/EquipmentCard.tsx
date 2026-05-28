@@ -67,10 +67,22 @@ export function EquipmentCard({ equipment }: { equipment: Equipment }) {
 
       <div className="flex flex-wrap gap-1.5">
         <Badge tone="moss">{equipment.budget}</Badge>
+        {equipment.budgetFallback ? <Badge tone="blue">orçamento alternativo</Badge> : null}
+        {equipment.dataStatus === "needs_review" ? <Badge>revisar</Badge> : null}
         {visibleAttributes.map((attribute) => (
           <Badge key={attribute}>{attribute}</Badge>
         ))}
       </div>
+
+      {equipment.dataStatus === "needs_review" ? (
+        <p className="text-xs leading-5 text-parchment/58">
+          Faixa de level/orçamento ainda precisa de validação.
+        </p>
+      ) : null}
+
+      {equipment.notes ? (
+        <p className="text-xs leading-5 text-parchment/58">{equipment.notes}</p>
+      ) : null}
 
       <button
         className="h-9 w-fit rounded-md border border-sky-400/30 bg-sky-500/15 px-3 text-sm font-semibold text-sky-100 transition hover:bg-sky-500/25 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
@@ -83,6 +95,17 @@ export function EquipmentCard({ equipment }: { equipment: Equipment }) {
             ? "Erro ao copiar"
             : "Copiar nome"}
       </button>
+
+      {equipment.wikiUrl || equipment.sourceUrls?.length ? (
+        <a
+          className="w-fit text-xs font-semibold text-ember transition hover:text-orange-300"
+          href={equipment.wikiUrl ?? equipment.sourceUrls?.[0]}
+          rel="noreferrer"
+          target="_blank"
+        >
+          Ver fonte
+        </a>
+      ) : null}
     </article>
   );
 }

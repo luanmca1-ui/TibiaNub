@@ -43,14 +43,15 @@ function isCompatibleWithLevel(item: Equipment, level: number) {
 }
 
 function getItemScore(item: Equipment) {
-  return item.levelMin * 100 + (item.priority ?? 0);
+  const statusBonus = item.dataStatus === "validated" ? 10000 : 0;
+  return statusBonus + item.levelMin * 100 + (item.priority ?? 0);
 }
 
 function pickBestItem(items: Equipment[]) {
   return [...items].sort((a, b) => getItemScore(b) - getItemScore(a))[0];
 }
 
-function addScore(item: Equipment, filters: Filters): Equipment {
+function addScore(item: Equipment, filters: Filters, budgetFallback = false): Equipment {
   const budgetBonus =
     item.budget === filters.budget
       ? 18
@@ -58,6 +59,7 @@ function addScore(item: Equipment, filters: Filters): Equipment {
 
   return {
     ...item,
+    budgetFallback,
     score: Math.round(40 + item.levelMin / 5 + (item.priority ?? 0) + budgetBonus),
   };
 }
@@ -82,16 +84,16 @@ export function getRecommendedEquipment(filters: Filters) {
       "Melhor possível",
     ].filter((budget, index, list) => list.indexOf(budget) === index) as Budget[];
 
-    const selected =
-      pickBestItem(selectedBudgetItems) ||
+    const selectedForBudget = pickBestItem(selectedBudgetItems);
+    const fallbackSelected =
       orderedFallbackBudgets
         .filter((budget) => budget !== filters.budget)
         .map((budget) => pickBestItem(slotItems.filter((item) => item.budget === budget)))
-        .find(Boolean) ||
-      pickBestItem(slotItems);
+        .find(Boolean) || pickBestItem(slotItems);
+    const selected = selectedForBudget || fallbackSelected;
 
     if (selected) {
-      result.push(addScore(selected, filters));
+      result.push(addScore(selected, filters, selected.budget !== filters.budget));
     }
   }
 
